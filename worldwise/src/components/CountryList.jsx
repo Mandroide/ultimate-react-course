@@ -2,8 +2,10 @@ import styles from "./CountryList.module.css"
 import CountryItem from "./CountryItem.jsx";
 import Spinner from "./Spinner.jsx";
 import Message from "./Message.jsx";
+import useCities from "../hooks/useCities.js";
 
-function CountryList({cities, isLoading}) {
+function CountryList() {
+    const {cities, isLoading} = useCities();
     if (isLoading) {
         return <Spinner/>
     }
@@ -14,14 +16,14 @@ function CountryList({cities, isLoading}) {
 
     const countriesUnique = new Set(
         cities.map(city =>
-            JSON.stringify({ country: city.country, emoji: city.emoji }),
+            JSON.stringify({country: city.country, emoji: city.emoji}),
         ),
     )
     const countries = [...countriesUnique].map(each => JSON.parse(each));
 
     return (
         <ul className={styles.countryList}>
-            {countries.map(country => (<CountryItem key={country.country} country={country} />))}
+            {countries.map(country => (<CountryItem key={country.country} country={country}/>))}
         </ul>
     )
 }
