@@ -1,3 +1,5 @@
+import {QuizActionType} from "../constants/enums.js";
+
 export default function Options({question, dispatch, answer}) {
     const hasAnswered = answer !== null;
 
@@ -19,7 +21,7 @@ export default function Options({question, dispatch, answer}) {
             {question.options.map((option, index) => (
                 <button key={option} disabled={hasAnswered}
                         className={`btn btn-option${getClassName(index)}`}
-                        onClick={() => dispatch({type: "DATA_NEW_ANSWER", payload: index})}>{option}</button>))}
+                        onClick={() => dispatch({type: QuizActionType.DATA_NEW_ANSWER, payload: index})}>{option}</button>))}
         </div>
     );
 }

@@ -1,11 +1,12 @@
 import {useEffect} from "react";
+import {QuizActionType} from "../constants/enums.js";
 
 export default function Timer({secondsRemaining, dispatch}) {
     const mins = Math.floor(secondsRemaining / 60);
     const seconds = secondsRemaining % 60;
     useEffect(() => {
         const id = setInterval(() => {
-            dispatch({type: "DATA_TICK"});
+            dispatch({type: QuizActionType.DATA_TICK});
         }, 1000);
         return () => {
             clearInterval(id);

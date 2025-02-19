@@ -5,7 +5,7 @@ import Loader from "./components/Loader.jsx";
 import Error from "./components/Error.jsx";
 import StartScreen from "./components/StartScreen.jsx";
 import Question from "./components/Question.jsx";
-import {STATUS} from "./constants/enums.js";
+import {QuizActionType, Status} from "./constants/enums.js";
 import NextButton from "./components/NextButton.jsx";
 import Progress from "./components/Progress.jsx";
 import FinishedScreen from "./components/FinishedScreen.jsx";
@@ -15,7 +15,7 @@ import Timer from "./components/Timer.jsx";
 const initialState = {
     questions: [],
     // 'loading', 'error', 'ready', 'active', 'finished'
-    status: STATUS.loading,
+    status: Status.LOADING,
     index: 0,
     answer: null,
     points: 0,
@@ -27,33 +27,33 @@ const SECS_PER_QUESTION = 30
 
 function reducer(state, action) {
     switch (action.type) {
-        case "DATA_RECEIVED":
+        case QuizActionType.DATA_RECEIVED:
             return {
                 ...state,
-                status: STATUS.ready,
+                status: Status.READY,
                 questions: action.payload
             };
-        case "DATA_RESTART":
+        case QuizActionType.DATA_RESTART:
             return {
                 ...initialState,
-                status: STATUS.ready,
+                status: Status.READY,
                 questions: state.questions,
                 highestScore: state.highestScore
             };
-        case "DATA_FAILED":
+        case QuizActionType.DATA_FAILED:
             return {
                 ...state,
-                status: STATUS.error
+                status: Status.ERROR
             };
-        case "DATA_ACTIVE": {
+        case QuizActionType.DATA_ACTIVE: {
             return {
                 ...state,
-                status: STATUS.active,
+                status: Status.ACTIVE,
                 secondsRemaining: state.questions.length * SECS_PER_QUESTION
             };
         }
 
-        case "DATA_NEW_ANSWER": {
+        case QuizActionType.DATA_NEW_ANSWER: {
             const question = state.questions[state.index];
             return {
                 ...state,
@@ -61,25 +61,25 @@ function reducer(state, action) {
                 points: action.payload === question.correctOption ? question.points + state.points : state.points,
             }
         }
-        case "DATA_NEXT_QUESTION": {
+        case QuizActionType.DATA_NEXT_QUESTION: {
             return {
                 ...state,
                 answer: null,
                 index: state.index + 1,
             }
         }
-        case "DATA_FINISHED": {
+        case QuizActionType.DATA_FINISHED: {
             return {
                 ...state,
-                status: STATUS.finished,
+                status: Status.FINISHED,
                 answer: null,
                 highestScore: state.points > state.highestScore ? state.points : state.highestScore
             }
         }
-        case "DATA_TICK":
+        case QuizActionType.DATA_TICK:
             return {
                 ...state,
-                status: state.secondsRemaining > 0 ? state.status : STATUS.finished,
+                status: state.secondsRemaining > 0 ? state.status : Status.FINISHED,
                 secondsRemaining: state.secondsRemaining - 1,
             }
         default:
@@ -107,13 +107,13 @@ export default function App() {
                 signal: controller.signal
             });
             const data = await res.json();
-            dispatch({payload: data, type: "DATA_RECEIVED"});
+            dispatch({payload: data, type: QuizActionType.DATA_RECEIVED});
         }
 
         fetchQuestions().catch((err) => {
             if (err.name !== 'AbortError') {
                 console.error(err.message);
-                dispatch({type: "DATA_FAILED"})
+                dispatch({type: QuizActionType.DATA_FAILED})
             }
         });
 
@@ -126,10 +126,10 @@ export default function App() {
         <div className="app">
             <Header/>
             <Content>
-                {status === STATUS.loading && <Loader/>}
-                {status === STATUS.error && <Error/>}
-                {status === STATUS.ready && (<StartScreen numQuestions={numQuestions} dispatch={dispatch}/>)}
-                {status === STATUS.active && (<>
+                {status === Status.LOADING && <Loader/>}
+                {status === Status.ERROR && <Error/>}
+                {status === Status.READY && (<StartScreen numQuestions={numQuestions} dispatch={dispatch}/>)}
+                {status === Status.ACTIVE && (<>
                     <Progress index={index} numQuestions={numQuestions} dispatch={dispatch} points={points}
                               maxPossiblePoints={maxPossiblePoints} answer={answer}/>
                     <Question question={questions[index]} dispatch={dispatch} answer={answer}/>
@@ -138,10 +138,8 @@ export default function App() {
                         <NextButton dispatch={dispatch} answer={answer} index={index} numQuestions={numQuestions}/>
                     </Footer>
                 </>)}
-                {status === STATUS.finished && <FinishedScreen points={points} maxPossiblePoints={maxPossiblePoints}
+                {status === Status.FINISHED && <FinishedScreen points={points} maxPossiblePoints={maxPossiblePoints}
                                                                highestScore={highestScore} dispatch={dispatch}/>}
-                {/*<p>1/{state.questions?.length}</p>*/}
-                {/*<p>{state.questions?.[0]}</p>*/}
             </Content>
         </div>
     )

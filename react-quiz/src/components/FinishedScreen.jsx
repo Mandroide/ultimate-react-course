@@ -1,3 +1,5 @@
+import {QuizActionType} from "../constants/enums.js";
+
 export default function FinishedScreen({points, maxPossiblePoints, highestScore, dispatch}) {
     const percentage = (points / maxPossiblePoints) * 100;
 
@@ -13,7 +15,7 @@ export default function FinishedScreen({points, maxPossiblePoints, highestScore,
             <p className="result"><span>{emoji}</span> You scored <strong>{points}</strong> out
                 of {maxPossiblePoints} ({Math.ceil(percentage)}%)</p>
             <p className="highscore">(Highest Score: {highestScore} points)</p>
-            <button className="btn btn-ui" onClick={() => dispatch({type: "DATA_RESTART"})}>Restart Quiz</button>
+            <button className="btn btn-ui" onClick={() => dispatch({type: QuizActionType.DATA_RESTART})}>Restart Quiz</button>
         </>
     );
 }
