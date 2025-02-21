@@ -1,5 +1,5 @@
 import {CitiesActionType} from "../enums.js";
-import {useEffect, useReducer} from "react";
+import {useCallback, useEffect, useReducer} from "react";
 import {CitiesContext} from "../constants/contexts.js";
 
 function reducer(state, action) {
@@ -85,7 +85,7 @@ function CitiesProvider({children}) {
         }
     }, []);
 
-    function getCity(id) {
+    const getCity = useCallback(function (id) {
         if (currentCity.id === +id) {
             return;
         }
@@ -100,7 +100,7 @@ function CitiesProvider({children}) {
         }).catch(() => {
             dispatch({type: CitiesActionType.REJECTED, payload: "There was an error loading the city..."});
         });
-    }
+    }, [currentCity.id])
 
     function createCity(newCity) {
         dispatch({type: CitiesActionType.LOADING});
