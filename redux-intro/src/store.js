@@ -1,11 +1,13 @@
 import {applyMiddleware, combineReducers, compose, createStore} from "redux";
 import accountReducer from "./features/accounts/accountSlice.js";
 import customerReducer from "./features/customers/customerSlice.js";
-import {logger} from "redux-logger/src"; // installed new package
+import {logger} from "redux-logger/src";
+import {thunk} from "redux-thunk";
+import {composeWithDevTools} from "@redux-devtools/extension"; // installed new package
 
 // write down these 2 lines and define your middleware
-const middlewares = [logger]
-const composedEnhancers = compose(applyMiddleware(...middlewares));
+const middlewares = [logger, thunk]
+const composedEnhancers = composeWithDevTools(applyMiddleware(...middlewares));
 
 const rootReducer = combineReducers({
     account: accountReducer,

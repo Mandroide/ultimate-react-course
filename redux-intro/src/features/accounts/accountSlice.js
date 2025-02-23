@@ -1,14 +1,16 @@
-export const ACCOUNT_ACTION_TYPES = Object.freeze({
+const ACCOUNT_ACTION_TYPES = Object.freeze({
     SET_ACCOUNT_DEPOSIT: 'account/deposit',
     SET_ACCOUNT_WITHDRAW: 'account/withdraw',
     SET_ACCOUNT_REQUEST_LOAN: 'account/requestLoan',
-    SET_ACCOUNT_PAY_LOAN: 'account/payLoan'
+    SET_ACCOUNT_PAY_LOAN: 'account/payLoan',
+    SET_ACCOUNT_CONVERTING_CURRENCY: 'account/convertingCurrency',
 });
 
 const initialStateAccount = {
     balance: 0,
     loan: 0,
-    loanPurpose: ''
+    loanPurpose: '',
+    isLoading: false
 };
 
 export default function accountReducer(state = initialStateAccount, {type, payload}) {
@@ -16,7 +18,8 @@ export default function accountReducer(state = initialStateAccount, {type, paylo
         case ACCOUNT_ACTION_TYPES.SET_ACCOUNT_DEPOSIT:
             return {
                 ...state,
-                balance: state.balance + payload
+                balance: state.balance + payload,
+                isLoading: false
             }
         case ACCOUNT_ACTION_TYPES.SET_ACCOUNT_WITHDRAW:
             return {
@@ -38,13 +41,28 @@ export default function accountReducer(state = initialStateAccount, {type, paylo
                 loanPurpose: '',
                 balance: state.balance - state.loan
             }
+        case ACCOUNT_ACTION_TYPES.SET_ACCOUNT_CONVERTING_CURRENCY:
+            return {
+                ...state,
+                isLoading: true
+            }
         default:
             return {...state}
     }
 }
 
-export function deposit(amount) {
-    return {type: ACCOUNT_ACTION_TYPES.SET_ACCOUNT_DEPOSIT, payload: amount}
+export function deposit(amount, currency) {
+    if (currency === "USD") {
+        return {type: ACCOUNT_ACTION_TYPES.SET_ACCOUNT_DEPOSIT, payload: amount}
+    } else {
+        return async function (dispatch, getState) {
+            dispatch({type: ACCOUNT_ACTION_TYPES.SET_ACCOUNT_CONVERTING_CURRENCY})
+            const res = await fetch(`https://api.frankfurter.app/latest?amount=${amount}&from=${currency}&to=USD`);
+            const data = await res.json();
+            const converted = data.rates.USD;
+            dispatch({type: ACCOUNT_ACTION_TYPES.SET_ACCOUNT_DEPOSIT, payload: converted});
+        }
+    }
 }
 
 export function withdraw(amount) {
