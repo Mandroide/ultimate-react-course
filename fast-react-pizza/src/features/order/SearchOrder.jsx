@@ -19,7 +19,10 @@ function SearchOrder() {
                    pattern="[A-Za-z0-9]+"
                    type="search"
                    value={query}
-                   onChange={e => setQuery(e.target.value)}/>
+                   onChange={e => setQuery(e.target.value)}
+            className="rounded-full px-4 py-2 bg-yellow-100 text-sm placeholder:text-stone-400
+            border-2 border-gray-200 sm:w-64 focus:w-72 sm:w-64
+            transition-all duration-300 focus:outline-none focus:ring-yellow-500 focus:border-indigo-500"/>
         </form>
 
     );
