@@ -1,3 +1,5 @@
+import {createSlice} from "@reduxjs/toolkit";
+
 const ACCOUNT_ACTION_TYPES = Object.freeze({
     SET_ACCOUNT_DEPOSIT: 'account/deposit',
     SET_ACCOUNT_WITHDRAW: 'account/withdraw',
@@ -6,14 +8,70 @@ const ACCOUNT_ACTION_TYPES = Object.freeze({
     SET_ACCOUNT_CONVERTING_CURRENCY: 'account/convertingCurrency',
 });
 
-const initialStateAccount = {
+const initialState = {
     balance: 0,
     loan: 0,
     loanPurpose: '',
     isLoading: false
 };
 
-export default function accountReducer(state = initialStateAccount, {type, payload}) {
+const accountSlice = createSlice({
+    name: "account",
+    initialState,
+    reducers: {
+        deposit: (state, action) => {
+            state.balance += action.payload;
+            state.isLoading = false;
+        },
+        withdraw: (state, action) => {
+            state.balance -= action.payload;
+        },
+        requestLoan: {
+            prepare(amount, purpose) {
+                return {
+                    payload: {
+                        amount,
+                        purpose
+                    }
+                }
+            },
+            reducer(state, action) {
+                if (state.loan > 0) return;
+                state.loan = action.payload.amount;
+                state.loanPurpose = action.payload.purpose;
+                state.balance += action.payload.amount;
+            }
+        },
+        payLoan: (state) => {
+            state.balance -= state.loan;
+            state.loan = 0;
+            state.loanPurpose = "";
+        },
+        convertingCurrency: (state) => {
+            state.isLoading = true;
+        }
+    }
+});
+
+export const {withdraw, requestLoan, payLoan} = accountSlice.actions;
+
+export function deposit(amount, currency) {
+    if (currency === "USD") {
+        return {type: ACCOUNT_ACTION_TYPES.SET_ACCOUNT_DEPOSIT, payload: amount}
+    } else {
+        return async function (dispatch, getState) {
+            dispatch({type: ACCOUNT_ACTION_TYPES.SET_ACCOUNT_CONVERTING_CURRENCY})
+            const res = await fetch(`https://api.frankfurter.app/latest?amount=${amount}&from=${currency}&to=USD`);
+            const data = await res.json();
+            const converted = data.rates.USD;
+            dispatch({type: ACCOUNT_ACTION_TYPES.SET_ACCOUNT_DEPOSIT, payload: converted});
+        }
+    }
+}
+
+export default accountSlice.reducer;
+
+/*export default function accountReducer(state = initialState, {type, payload}) {
     switch (type) {
         case ACCOUNT_ACTION_TYPES.SET_ACCOUNT_DEPOSIT:
             return {
@@ -75,4 +133,4 @@ export function requestLoan(amount, purpose) {
 
 export function payLoan() {
     return {type: ACCOUNT_ACTION_TYPES.SET_ACCOUNT_PAY_LOAN}
-}
+}*/
