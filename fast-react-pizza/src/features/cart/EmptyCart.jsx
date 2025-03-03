@@ -1,12 +1,12 @@
-import { Link } from 'react-router';
-import {PATHS} from "../../utils/enums.js";
+import { PATHS } from "../../utils/enums.js";
+import LinkButton from "../../ui/LinkButton.jsx";
 
 function EmptyCart() {
   return (
-    <div>
-      <Link to={PATHS.MENU}>&larr; Back to menu</Link>
+    <div className="py-3 px-4">
+      <LinkButton to={PATHS.MENU}>&larr; Back to menu</LinkButton>
 
-      <p>Your cart is still empty. Start adding some pizzas :)</p>
+      <p className="font-semibold mt-7">Your cart is still empty. Start adding some pizzas :)</p>
     </div>
   );
 }

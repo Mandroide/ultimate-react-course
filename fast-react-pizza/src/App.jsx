@@ -5,10 +5,10 @@ import {lazy} from "react";
 
 const Home = lazy(() => import("./ui/Home"));
 const Menu = lazy(() => import("./features/menu/Menu"));
-// const menuLoader = lazy(() => import("./features/menu/menuLoader.js"));
 import menuLoader from "./features/menu/menuLoader.js";
 import Error from "./ui/Error.jsx";
-import {createOrderAction, orderLoader} from "./features/order/functions.js";
+import { createOrderAction, orderLoader, updateOrderAction } from "./features/order/functions.js";
+import store from "./store.js";
 
 const Cart = lazy(() => import("./features/cart/Cart"));
 const CreateOrder = lazy(() => import("./features/order/CreateOrder"));
@@ -37,12 +37,14 @@ const router = createBrowserRouter([
             {
                 path: PATHS.ORDER_NEW,
                 element: <CreateOrder/>,
-                action: createOrderAction
+                action: ({ request }) =>
+                  createOrderAction(request, store)
             },
             {
                 path: PATHS.ORDER,
                 element: <Order/>,
                 loader: orderLoader,
+                action: updateOrderAction,
                 errorElement: <Error/>
             }
         ]

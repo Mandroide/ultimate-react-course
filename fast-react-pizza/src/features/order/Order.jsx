@@ -1,14 +1,16 @@
 // Test ID: IIDSAT
 
-import {useLoaderData} from "react-router";
+import { useFetcher, useLoaderData } from "react-router";
 
 import {
   calcMinutesLeft,
   formatCurrency,
   formatDate,
 } from "../../utils/helpers";
-import CartItem from "../cart/CartItem.jsx";
 import OrderItem from "./OrderItem.jsx";
+import { useEffect } from "react";
+import { PATHS } from "../../utils/enums.js";
+import UpdateOrder from "./UpdateOrder.jsx";
 
 function Order() {
   const order = useLoaderData();
@@ -23,6 +25,14 @@ function Order() {
     cart,
   } = order;
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
+  const fetcher = useFetcher();
+  const isLoadingIngredients = fetcher.state === 'loading';
+
+  useEffect(() => {
+    if (!fetcher.data && fetcher.state === 'idle') {
+      fetcher.load(PATHS.MENU);
+    }
+  }, [fetcher])
 
   return (
     <div className="px-4 py-6 space-y-8">
@@ -44,13 +54,15 @@ function Order() {
         <p className="text-xs text-stone-500">(Estimated delivery: {formatDate(estimatedDelivery)})</p>
       </div>
       <ul className="divide-y divide-stone-200 border-y">
-        {cart.map((item) => (<OrderItem key={item.id} item={item} />))}
+        {cart.map((item) => (<OrderItem key={item.pizzaId} item={item} isLoadingIngredients={isLoadingIngredients}
+                                        ingredients={fetcher.data?.find(el => el.id === item.pizzaId).ingredients} />))}
       </ul>
       <div className="space-y-2 bg-stone-200 py-5 px-6">
         <p className="text-sm font-medium text-stone-600">Price pizza: {formatCurrency(orderPrice)}</p>
         {priority && <p className="text-sm font-medium text-stone-600">Price priority: {formatCurrency(priorityPrice)}</p>}
         <p className="font-bold">To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}</p>
       </div>
+      {!priority && <UpdateOrder order={order} />}
     </div>
   );
 }

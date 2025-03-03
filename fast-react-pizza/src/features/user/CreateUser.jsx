@@ -1,11 +1,21 @@
 import { useState } from 'react';
 import Button from "../../ui/Button.jsx";
+import { updateName } from "./userSlice.js";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
+import { PATHS } from "../../utils/enums.js";
 
 function CreateUser() {
   const [username, setUsername] = useState('');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   function handleSubmit(e) {
     e.preventDefault();
+    if (username) {
+      dispatch(updateName(username.trim()));
+      navigate(PATHS.MENU);
+    }
   }
 
   return (
@@ -22,7 +32,7 @@ function CreateUser() {
 
       {username !== '' && (
         <div>
-          <Button type="primary" disabled={false}>Start ordering</Button>
+          <Button type="primary" disabled={false} onClick={handleSubmit}>Start ordering</Button>
         </div>
       )}
     </form>
