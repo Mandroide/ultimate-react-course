@@ -1,38 +1,39 @@
-import styled from "styled-components";
-import GlobalStyles from "./styles/GlobalStyles.js";
-import Button from "./ui/Button.jsx";
-import Input from "./ui/Input.jsx";
-import {Heading} from "./ui/Heading.jsx";
-import Row from "./ui/Row.jsx";
+import {lazy} from "react";
 
-const StyledApp = styled.div`
-    padding: 20px;
-`;
+
+import {BrowserRouter, Navigate, Route, Routes} from "react-router";
+import {PATHS} from "./utils/enums.js";
+import GlobalStyles from "./styles/GlobalStyles.js";
+import AppLayout from "./ui/AppLayout.jsx";
+
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Bookings = lazy(() => import("./pages/Bookings"));
+const Cabins = lazy(() => import("./pages/Cabins"));
+const Users = lazy(() => import("./pages/Users"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Account = lazy(() => import("./pages/Account"));
+const Login = lazy(() => import("./pages/Login"));
+const PageNotFound = lazy(() => import("./pages/PageNotFound"));
 
 function App() {
     return (
         <>
             <GlobalStyles/>
-            <StyledApp>
-                <Row>
-                    <Row type="horizontal">
-                        <Heading as="h1">The Wild Oasis</Heading>
-                        <div>
-                            <Heading as="h2">Check in and Check out</Heading>
-                            <Button onClick={() => alert("Check in")}>Check in</Button>
-                            <Button variation="secondary" size="small" onClick={() => alert("Check out")}>Check
-                                out</Button>
-                        </div>
-                    </Row>
-                    <Row>
-                        <Heading as="h3">Form</Heading>
-                        <form>
-                            <Input type="number" placeholder="Number of guests"/>
-                            <Input type="number" placeholder="Number of guests"/>
-                        </form>
-                    </Row>
-                </Row>
-            </StyledApp>
+            <BrowserRouter>
+                <Routes>
+                    <Route element={<AppLayout/>}>
+                        <Route index element={<Navigate replace to={PATHS.DASHBOARD}/>}/>
+                        <Route path={PATHS.DASHBOARD} element={<Dashboard/>}/>
+                        <Route path={PATHS.BOOKINGS} element={<Bookings/>}/>
+                        <Route path={PATHS.CABINS} element={<Cabins/>}/>
+                        <Route path={PATHS.USERS} element={<Users/>}/>
+                        <Route path={PATHS.SETTINGS} element={<Settings/>}/>
+                        <Route path={PATHS.ACCOUNT} element={<Account/>}/>
+                    </Route>
+                    <Route path={PATHS.LOGIN} element={<Login/>}/>
+                    <Route path="*" element={<PageNotFound/>}/>
+                </Routes>
+            </BrowserRouter>
         </>
     )
 }
