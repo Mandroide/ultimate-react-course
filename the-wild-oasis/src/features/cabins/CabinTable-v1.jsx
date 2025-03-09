@@ -1,7 +1,4 @@
 import styled from "styled-components";
-import Spinner from "../../ui/Spinner.jsx";
-import CabinRow from "./CabinRow.jsx";
-import {useCabins} from "./useCabins.js";
 
 const Table = styled.div`
     border: 1px solid var(--color-grey-200);
@@ -27,8 +24,17 @@ const TableHeader = styled.header`
     padding: 1.6rem 2.4rem;
 `;
 
+import React from 'react';
+import {useQuery} from "@tanstack/react-query";
+import {getCabins} from "../../services/apiCabins.js";
+import Spinner from "../../ui/Spinner.jsx";
+import CabinRow from "./CabinRow.jsx";
+
 function CabinTable() {
-    const {isPending, cabins} = useCabins();
+    const {isPending, data: cabins, error} = useQuery({
+        queryKey: ['cabins'],
+        queryFn: getCabins
+    });
 
     if (isPending) {
         return <Spinner/>;
