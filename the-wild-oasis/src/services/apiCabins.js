@@ -16,14 +16,14 @@ export async function createEditCabin(cabin, id) {
     const imageName = `${Math.random()}-${cabin.image.name.replace("/", "")}`;
     // ${import.meta.env.VITE_API_SUPABASE_URL}/storage/v1/object/public/cabin-images/${imageName}
     const imagePath = hasImagePath ? cabin.image : `${import.meta.env.VITE_API_SUPABASE_URL}/storage/v1/object/public/cabin-images/${imageName}`;
-    let query = await supabase
+    let query = supabase
         .from('cabins');
     if (id) {
         query = query.update({...cabin, image: imagePath}).eq("id", id);
     } else {
         query = query.insert([{...cabin, image: imagePath}])
     }
-    const {data, error} = query.select().single();
+    const {data, error} = await query.select().single();
 
     if (error) {
         throw new Error('Cabin could not be created');

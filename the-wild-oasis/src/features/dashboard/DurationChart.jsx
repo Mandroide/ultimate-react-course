@@ -1,4 +1,6 @@
 import styled from "styled-components";
+import Heading from "../../ui/Heading.jsx";
+import {Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip} from "recharts";
 
 const ChartBox = styled.div`
   /* Box */
@@ -105,28 +107,41 @@ const startDataDark = [
 ];
 
 function prepareData(startData, stays) {
-  // A bit ugly code, but sometimes this is what it takes when working with real data 😅
 
-  function incArrayValue(arr, field) {
-    return arr.map((obj) =>
-      obj.duration === field ? { ...obj, value: obj.value + 1 } : obj
-    );
+  // Maybe in needs to place this fn into helpers folder
+  function checkIsInRange(from, to, number) {
+    return from <= number && to >= number;
   }
 
-  const data = stays
-    .reduce((arr, cur) => {
-      const num = cur.numNights;
-      if (num === 1) return incArrayValue(arr, "1 night");
-      if (num === 2) return incArrayValue(arr, "2 nights");
-      if (num === 3) return incArrayValue(arr, "3 nights");
-      if ([4, 5].includes(num)) return incArrayValue(arr, "4-5 nights");
-      if ([6, 7].includes(num)) return incArrayValue(arr, "6-7 nights");
-      if (num >= 8 && num <= 14) return incArrayValue(arr, "8-14 nights");
-      if (num >= 15 && num <= 21) return incArrayValue(arr, "15-21 nights");
-      if (num >= 21) return incArrayValue(arr, "21+ nights");
-      return arr;
-    }, startData)
-    .filter((obj) => obj.value > 0);
+  function incArrayValue(arr, nights) {
+    return arr.map((obj) => {
+      const [from, to = from] = obj.duration.replace(/[^0-9-]/g, "").split("-");
+      const isInRange = checkIsInRange(from, to, nights);
 
-  return data;
+      return isInRange ? { ...obj, value: obj.value + 1 } : obj;
+    });
+  }
+
+  return stays
+      .reduce((arr, cur) => incArrayValue(arr, cur.numNights), startData)
+      .filter((obj) => obj.value > 0);
 }
+
+function DurationChart({confirmedStays}) {
+  return (
+      <ChartBox>
+        <Heading as="h2">Stay duration summary</Heading>
+        <ResponsiveContainer height="80%" width="100%">
+          <PieChart>
+            <Pie data={startDataLight} dataKey="value" nameKey="duration" cx="40%" cy="50%" innerRadius="70%" outerRadius="90%" paddingAngle={3}>
+              {startDataLight.map((entry) => (<Cell key={entry.duration} fill={entry.color} stroke={entry.color} />))}
+            </Pie>
+            <Tooltip/>
+            <Legend verticalAlign="middle" align="right" layout="vertical" iconSize="1.5rem" iconType="circle" formatter={value => ` ${value}`}/>
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartBox>
+  );
+}
+
+export default DurationChart;

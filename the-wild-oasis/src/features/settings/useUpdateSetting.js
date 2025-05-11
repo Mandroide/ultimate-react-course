@@ -12,9 +12,9 @@ export function useUpdateSetting() {
                 queryKey: ["settings"]
             });
         },
-        onError: error => {
-            toast.error(error.message);
+        onError: err => {
+            toast.error(err.message);
         }
     });
-    return {updateSetting, isUpdating};
+    return {isUpdating, updateSetting};
 }

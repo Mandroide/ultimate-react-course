@@ -3,7 +3,6 @@ import {
     HiOutlineCalendarDays, HiOutlineCog6Tooth,
     HiOutlineHome,
     HiOutlineHomeModern,
-    HiOutlineUserGroup,
     HiOutlineUsers
 } from "react-icons/hi2";
 

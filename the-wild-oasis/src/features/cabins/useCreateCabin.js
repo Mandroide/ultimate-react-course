@@ -12,8 +12,8 @@ export function useCreateCabin() {
                 queryKey: ["cabins"]
             });
         },
-        onError: error => {
-            toast.error(error.message);
+        onError: err => {
+            toast.error(err.message);
         }
     });
 

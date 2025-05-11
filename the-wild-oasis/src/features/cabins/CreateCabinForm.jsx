@@ -7,6 +7,7 @@ import {useForm} from "react-hook-form";
 import FormRow from "../../ui/FormRow.jsx";
 import {useCreateCabin} from "./useCreateCabin.js";
 import {useUpdateCabin} from "./useUpdateCabin.js";
+import useModal from "../../hooks/useModal.js";
 
 function CreateCabinForm({cabinToEdit = {}}) {
     const {id: editId, ...editValues} = cabinToEdit;
@@ -21,6 +22,7 @@ function CreateCabinForm({cabinToEdit = {}}) {
     });
     const {createCabin, isCreating} = useCreateCabin();
     const {updateCabin, isUpdating} = useUpdateCabin();
+    const { closeModal: onCloseModal } = useModal() || false;
 
     const isWorking = isCreating || isUpdating;
 
@@ -30,12 +32,14 @@ function CreateCabinForm({cabinToEdit = {}}) {
             updateCabin({cabin: {...data, image}, id: editId}, {
                 onSuccess: () => {
                     reset();
+                    onCloseModal?.();
                 }
             });
         } else {
             createCabin({...data, image}, {
                 onSuccess: () => {
                     reset();
+                    onCloseModal?.();
                 }
             });
         }
@@ -48,7 +52,7 @@ function CreateCabinForm({cabinToEdit = {}}) {
     }
 
     return (
-        <Form onSubmit={handleSubmit(onSubmit, onError)}>
+        <Form onSubmit={handleSubmit(onSubmit, onError)} type={onCloseModal ? 'modal' : 'regular'}>
             <FormRow label="Cabin name" error={errors?.name?.message}>
                 <Input type="text" id="name" disabled={isWorking} {...register('name', {
                     required: "This field is required"
@@ -100,7 +104,7 @@ function CreateCabinForm({cabinToEdit = {}}) {
 
             <FormRow>
                 {/* type is an HTML attribute! */}
-                <Button variation="secondary" type="reset" disabled={isWorking}>
+                <Button variation="secondary" type="reset" disabled={isWorking} onClick={() => onCloseModal?.()}>
                     Cancel
                 </Button>
                 <Button disabled={isWorking}>{isEditSession ? "Edit cabin" : "Create new cabin"}</Button>
